@@ -61,7 +61,7 @@ bool writeSync(const std::string& file, const std::string& content)
     return true;
 };
 
-Lazy<> coReverse(const std::string& in, const std::string& out)
+Lazy<bool> coReverse(const std::string& in, const std::string& out)
 {
     std::string content = co_await CommonAwaiter(readSync, in);
     info("file content: %s, current thread %ud\n\n", content.c_str(), currentTid());
@@ -76,14 +76,15 @@ Lazy<> coReverse(const std::string& in, const std::string& out)
     info("write result: %s, current thread %ud\n\n", suc ? "success" : "failed", currentTid());
     
     Executor::instance().postMainTask([]()->void {Executor::instance().quit(); });
+    co_return true;
 }
 
 int main(int argc, char* argv[])
 {
     std::string in("I:\\VCProjects\\coroutine\\test.txt"), out("I:\\VCProjects\\coroutine\\reverse.txt");
-    Lazy<> future = coReverse(in, out);
+    Lazy<bool> future = coReverse(in, out);
     info("running in %ud\n", currentTid());
     Executor::instance().run();
-
+    info("%s", future.get_value() ? "all success" : "all failed");
     system("pause");
 }
