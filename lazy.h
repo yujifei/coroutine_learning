@@ -1,6 +1,7 @@
 #pragma once
 #include <coroutine>
 #include <string>
+#include <type_traits>
 
 template<typename T = void> class Lazy
 {
@@ -71,6 +72,10 @@ public:
         {
             m_handle.destroy();
         }
+    }
+    std::enable_if_t<!std::is_same_v<T, void> get_value() const
+    {
+        return m_handle.promise().get_value();
     }
 
 private:
